@@ -1,15 +1,15 @@
 import { useState, useEffect } from "react";
 
 // ── ASSETS ────────────────────────────────────────────────────────────────────
-const LOGO             = "/Assets/BlusClues_Logo.webp";
-const SNAKE_ESCAPE_IMG = "/Assets/SnakeEscape_Logo.webp";
+const LOGO             = "/BlusClues_Logo.webp";
+const SNAKE_ESCAPE_IMG = "/SnakeEscape_Logo.webp";
 export const OWLS = {
-  idle:    "/Assets/Owl_01.webp",
-  win:     "/Assets/Owl_24.webp",
-  fail:    "/Assets/Owl_29.webp",
-  hint:    "/Assets/Owl_16.webp",
-  blocked: "/Assets/Owl_11.webp",
-  loading: "/Assets/Owl_08.webp",
+  idle:    "/Owl_01.webp",
+  win:     "/Owl_24.webp",
+  fail:    "/Owl_29.webp",
+  hint:    "/Owl_16.webp",
+  blocked: "/Owl_11.webp",
+  loading: "/Owl_08.webp",
 };
 
 // ── GAME REGISTRY ─────────────────────────────────────────────────────────────
