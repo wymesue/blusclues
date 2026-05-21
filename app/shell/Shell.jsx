@@ -144,35 +144,28 @@ function CategoryCard({ category, onPlay, index, loaded }) {
         borderRadius:"50%", background:category.color,
         opacity:hovered?0.12:0.04, filter:"blur(24px)", pointerEvents:"none" }}/>
 
-      <div style={{ display:"flex", alignItems:"center", gap:14, marginBottom:12 }}>
-        {/* Category logo or color badge */}
-        <div style={{ width:56, height:56, borderRadius:14, flexShrink:0,
+      <div style={{ display:"flex", alignItems:"center", gap:14 }}>
+        {/* Category logo big on left */}
+        <div style={{ width:90, height:90, borderRadius:16, flexShrink:0,
           background:`linear-gradient(135deg,${category.color}22,${category.color}08)`,
           border:`1.5px solid ${category.color}33`,
           display:"flex", alignItems:"center", justifyContent:"center", overflow:"hidden" }}>
           {category.logo
             ? <img src={category.logo} alt={category.name}
-                style={{ width:50, height:50, objectFit:"contain" }}/>
-            : <div style={{ fontFamily:"'Fredoka One',cursive", fontSize:11,
+                style={{ width:82, height:82, objectFit:"contain" }}/>
+            : <div style={{ fontFamily:"'Fredoka One',cursive", fontSize:16,
                 color:category.color, textAlign:"center", padding:4, lineHeight:1.2 }}>
                 {category.name}
               </div>
           }
         </div>
 
-        {/* Category name */}
-        <div style={{ fontFamily:"'Fredoka One',cursive", fontSize:22,
-          color:"#e8eaf6", letterSpacing:0.5,
-          textShadow:`0 0 20px ${category.color}44` }}>
-          {category.name}
+        {/* Game pills on right */}
+        <div style={{ flex:1, display:"flex", flexWrap:"wrap", gap:8, alignItems:"center" }}>
+          {category.games.map(game => (
+            <GamePill key={game.id} game={game} color={category.color} onPlay={onPlay} />
+          ))}
         </div>
-      </div>
-
-      {/* Game pills */}
-      <div style={{ display:"flex", flexWrap:"wrap", gap:8, paddingLeft:4 }}>
-        {category.games.map(game => (
-          <GamePill key={game.id} game={game} color={category.color} onPlay={onPlay} />
-        ))}
       </div>
     </div>
   );
