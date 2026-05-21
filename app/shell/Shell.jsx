@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react";
 
 // ── ASSETS ────────────────────────────────────────────────────────────────────
-const LOGO             = "/BlusClues_Logo.webp";
-const SNAKE_ESCAPE_IMG = "/SnakeEscape_Logo.webp";
+const LOGO = "/BlusClues_Logo.webp";
+
 export const OWLS = {
   idle:    "/Owl_01.webp",
   win:     "/Owl_24.webp",
@@ -12,14 +12,65 @@ export const OWLS = {
   loading: "/Owl_08.webp",
 };
 
-// ── GAME REGISTRY ─────────────────────────────────────────────────────────────
-const GAMES = [
-  { id: "snake-escape", name: "Snake Escape", description: "Slide the snakes off the board in the right order.", emoji: "🐍", color: "#4ecdc4", glow: "#4ecdc4", available: true, logo: SNAKE_ESCAPE_IMG },
-  { id: "sudoku",       name: "Sudoku",       description: "Fill the grid. No repeats. No mercy.",              emoji: "🔢", color: "#a29bfe", glow: "#a29bfe", available: false },
-  { id: "rush-hour",   name: "Rush Hour",    description: "Slide the cars. Clear the path.",                   emoji: "🚗", color: "#ff6b6b", glow: "#ff6b6b", available: false },
-  { id: "word-games",  name: "Word Games",   description: "Letters, words, and twisted clues.",                emoji: "📝", color: "#ffd93d", glow: "#ffd93d", available: false },
-  { id: "trivia",      name: "Trivia",       description: "How much do you actually know?",                    emoji: "🧠", color: "#fd79a8", glow: "#fd79a8", available: false },
-  { id: "logic",       name: "Logic Puzzles",description: "Pure reasoning. No guessing allowed.",              emoji: "⚗️", color: "#55efc4", glow: "#55efc4", available: false },
+// ── CATEGORY REGISTRY ─────────────────────────────────────────────────────────
+// logo: null = placeholder color card. Swap in real logo path when ready.
+const CATEGORIES = [
+  {
+    id: "action",
+    name: "Action",
+    description: "Slide, untangle, and maneuver your way to victory.",
+    color: "#7bed9f",
+    glow:  "#7bed9f",
+    logo:  null,
+    games: [
+      { id: "snake-escape", name: "Snake Escape", available: true },
+      { id: "bumper-cars",  name: "Bumper Cars",  available: false },
+      { id: "tangled",      name: "Tangled",       available: false },
+    ],
+  },
+  {
+    id: "word",
+    name: "Word",
+    description: "Letters, clues, and the perfect word.",
+    color: "#ffd93d",
+    glow:  "#ffd93d",
+    logo:  null,
+    games: [
+      { id: "hoot-and-holler", name: "Hoot & Holler", available: false },
+      { id: "anagrams",        name: "Anagrams",       available: false },
+      { id: "word-search",     name: "Word Search",    available: false },
+      { id: "crossword",       name: "Crossword",      available: false },
+      { id: "crack-the-case",  name: "Crack the Case", available: false },
+    ],
+  },
+  {
+    id: "number",
+    name: "Number",
+    description: "Grids, logic, and satisfying precision.",
+    color: "#4ecdc4",
+    glow:  "#4ecdc4",
+    logo:  null,
+    games: [
+      { id: "sudoku",  name: "Sudoku",  available: false },
+      { id: "picross", name: "Picross", available: false },
+    ],
+  },
+  {
+    id: "trivia",
+    name: "Trivia",
+    description: "How much do you actually know?",
+    color: "#a29bfe",
+    glow:  "#a29bfe",
+    logo:  null,
+    games: [
+      { id: "trivia-science",    name: "Science",    available: false },
+      { id: "trivia-history",    name: "History",    available: false },
+      { id: "trivia-pop",        name: "Pop Culture", available: false },
+      { id: "trivia-geography",  name: "Geography",  available: false },
+      { id: "trivia-sports",     name: "Sports",     available: false },
+      { id: "trivia-gaming",     name: "Gaming",     available: false },
+    ],
+  },
 ];
 
 const RAINBOW = ["#ff6b6b","#ff9f43","#ffd93d","#7bed9f","#4ecdc4","#4a9eff","#a29bfe","#fd79a8"];
@@ -36,50 +87,94 @@ function Sparkle({ x, y, color, size, delay }) {
   );
 }
 
-// ── GAME CARD ─────────────────────────────────────────────────────────────────
-function GameCard({ game, onPlay }) {
+// ── CATEGORY CARD ─────────────────────────────────────────────────────────────
+function CategoryCard({ category, onOpen, index, loaded }) {
   const [hovered, setHovered] = useState(false);
+  const hasAvailable = category.games.some(g => g.available);
+
   return (
     <div
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
-      onClick={() => game.available && onPlay(game.id)}
+      onClick={() => onOpen(category.id)}
       style={{
         position: "relative",
-        background: hovered && game.available ? "linear-gradient(135deg,#0d1535,#111830)" : "linear-gradient(135deg,#090d1f,#0d1228)",
-        border: `1.5px solid ${game.available ? (hovered ? game.color : "#1a2040") : "#111828"}`,
-        borderRadius: 20, padding: "22px 20px",
-        cursor: game.available ? "pointer" : "default",
+        background: hovered
+          ? `linear-gradient(135deg, #0d1535 0%, #111830 100%)`
+          : `linear-gradient(135deg, #090d1f 0%, #0d1228 100%)`,
+        border: `1.5px solid ${hovered ? category.color : "#1a2040"}`,
+        borderRadius: 20,
+        padding: "20px",
+        cursor: "pointer",
         transition: "all 0.3s cubic-bezier(0.34,1.56,0.64,1)",
-        transform: hovered && game.available ? "translateY(-4px) scale(1.02)" : "translateY(0) scale(1)",
-        boxShadow: hovered && game.available ? `0 12px 40px ${game.glow}33,0 0 0 1px ${game.color}22` : "0 2px 12px rgba(0,0,0,0.4)",
+        transform: hovered ? "translateY(-4px) scale(1.02)" : "translateY(0) scale(1)",
+        boxShadow: hovered
+          ? `0 12px 40px ${category.glow}33, 0 0 0 1px ${category.color}22`
+          : "0 2px 12px rgba(0,0,0,0.4)",
         overflow: "hidden",
+        opacity: loaded ? 1 : 0,
+        animation: loaded ? `slideUp 0.5s ease ${0.25 + index * 0.1}s both` : "none",
       }}
     >
-      {game.available && (
-        <div style={{ position:"absolute", top:-20, right:-20, width:80, height:80, borderRadius:"50%",
-          background:game.color, opacity:hovered?0.15:0.05, filter:"blur(20px)",
-          transition:"opacity 0.3s", pointerEvents:"none" }}/>
-      )}
-      <div style={{ display:"flex", alignItems:"center", gap:14 }}>
-        <div style={{ flexShrink:0, width:52, height:52, display:"flex", alignItems:"center", justifyContent:"center" }}>
-          {game.logo
-            ? <img src={game.logo} alt={game.name} style={{ width:52, height:52, objectFit:"contain",
-                filter:game.available?"drop-shadow(0 0 8px #4ecdc488)":"grayscale(1) opacity(0.3)" }}/>
-            : <div style={{ fontSize:32, filter:game.available?`drop-shadow(0 0 8px ${game.color}88)`:"grayscale(1) opacity(0.3)" }}>{game.emoji}</div>
+      {/* Glow blob */}
+      <div style={{ position:"absolute", top:-20, right:-20, width:100, height:100,
+        borderRadius:"50%", background:category.color,
+        opacity:hovered?0.15:0.05, filter:"blur(24px)",
+        transition:"opacity 0.3s", pointerEvents:"none" }}/>
+
+      <div style={{ display:"flex", alignItems:"center", gap:16 }}>
+
+        {/* Color badge / future logo */}
+        <div style={{
+          width: 60, height: 60, borderRadius: 16, flexShrink: 0,
+          background: `linear-gradient(135deg, ${category.color}33, ${category.color}11)`,
+          border: `2px solid ${category.color}44`,
+          display: "flex", alignItems: "center", justifyContent: "center",
+        }}>
+          {category.logo
+            ? <img src={category.logo} alt={category.name}
+                style={{ width:52, height:52, objectFit:"contain" }}/>
+            : <div style={{ fontFamily:"'Fredoka One',cursive", fontSize:13,
+                color:category.color, textAlign:"center", lineHeight:1.2, padding:4 }}>
+                {category.name}
+              </div>
           }
         </div>
+
         <div style={{ flex:1, minWidth:0 }}>
-          <div style={{ fontSize:16, fontWeight:700, color:game.available?"#e8eaf6":"#2a2f50",
-            fontFamily:"'Fredoka One',cursive", letterSpacing:0.3, marginBottom:3 }}>{game.name}</div>
-          <div style={{ fontSize:12, color:game.available?"#4a5580":"#1e2238",
-            fontFamily:"'Nunito',sans-serif", lineHeight:1.4 }}>{game.description}</div>
+          <div style={{ fontSize:18, fontWeight:700, color:"#e8eaf6",
+            fontFamily:"'Fredoka One',cursive", letterSpacing:0.3, marginBottom:4 }}>
+            {category.name}
+          </div>
+          <div style={{ fontSize:12, color:"#4a5580", fontFamily:"'Nunito',sans-serif",
+            lineHeight:1.4, marginBottom:8 }}>
+            {category.description}
+          </div>
+          {/* Game pills */}
+          <div style={{ display:"flex", flexWrap:"wrap", gap:4 }}>
+            {category.games.map(g => (
+              <div key={g.id} style={{
+                fontSize:10, padding:"2px 8px", borderRadius:8, fontFamily:"'Nunito',sans-serif",
+                background: g.available ? `${category.color}22` : "#0a0d1a",
+                color: g.available ? category.color : "#2a3060",
+                border: `1px solid ${g.available ? category.color+"44" : "#1a2040"}`,
+              }}>{g.name}</div>
+            ))}
+          </div>
         </div>
+
         <div style={{ flexShrink:0 }}>
-          {game.available
-            ? <div style={{ background:`linear-gradient(135deg,${game.color},${game.color}bb)`, borderRadius:10, padding:"6px 14px", fontSize:12, fontWeight:700, color:"#0d1020", fontFamily:"'Nunito',sans-serif", opacity:hovered?1:0.8 }}>Play</div>
-            : <div style={{ borderRadius:10, padding:"6px 12px", fontSize:11, fontWeight:600, color:"#1e2440", fontFamily:"'Nunito',sans-serif", border:"1px solid #1a2040" }}>Soon</div>
-          }
+          <div style={{
+            background: hasAvailable
+              ? `linear-gradient(135deg, ${category.color}, ${category.color}bb)`
+              : "#1a2040",
+            borderRadius: 10, padding: "8px 14px",
+            fontSize: 12, fontWeight: 700,
+            color: hasAvailable ? "#0d1020" : "#2a3060",
+            fontFamily: "'Nunito',sans-serif",
+            opacity: hovered ? 1 : 0.85,
+            transition: "opacity 0.2s",
+          }}>{hasAvailable ? "Play" : "Soon"}</div>
         </div>
       </div>
     </div>
@@ -91,9 +186,11 @@ function SettingsModal({ onClose }) {
   const [sfx, setSfx] = useState(true);
   return (
     <div style={{ position:"fixed", inset:0, background:"rgba(0,0,0,0.8)", display:"flex",
-      alignItems:"center", justifyContent:"center", zIndex:200, backdropFilter:"blur(8px)" }} onClick={onClose}>
+      alignItems:"center", justifyContent:"center", zIndex:200, backdropFilter:"blur(8px)" }}
+      onClick={onClose}>
       <div style={{ background:"linear-gradient(160deg,#0d1535,#090d1f)", border:"1px solid #1a2550",
-        borderRadius:24, padding:28, minWidth:280, animation:"popIn 0.3s cubic-bezier(0.34,1.56,0.64,1)" }}
+        borderRadius:24, padding:28, minWidth:280,
+        animation:"popIn 0.3s cubic-bezier(0.34,1.56,0.64,1)" }}
         onClick={e => e.stopPropagation()}>
         <div style={{ fontFamily:"'Fredoka One',cursive", fontSize:22, color:"#e8eaf6", marginBottom:24 }}>⚙️ Settings</div>
         <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:20 }}>
@@ -103,8 +200,9 @@ function SettingsModal({ onClose }) {
           </div>
           <div onClick={() => setSfx(s => !s)} style={{ width:48, height:26, borderRadius:13,
             background:sfx?"#4ecdc4":"#1a2040", position:"relative", cursor:"pointer", transition:"background 0.2s" }}>
-            <div style={{ position:"absolute", top:3, left:sfx?25:3, width:20, height:20, borderRadius:"50%",
-              background:"#fff", transition:"left 0.2s", boxShadow:"0 1px 4px rgba(0,0,0,0.3)" }}/>
+            <div style={{ position:"absolute", top:3, left:sfx?25:3, width:20, height:20,
+              borderRadius:"50%", background:"#fff", transition:"left 0.2s",
+              boxShadow:"0 1px 4px rgba(0,0,0,0.3)" }}/>
           </div>
         </div>
         <div style={{ background:"#0a0d1a", borderRadius:12, padding:"12px 16px",
@@ -120,7 +218,7 @@ function SettingsModal({ onClose }) {
 }
 
 // ── SHELL ─────────────────────────────────────────────────────────────────────
-export default function Shell({ onPlay }) {
+export default function Shell({ onOpen }) {
   const [showSettings, setShowSettings] = useState(false);
   const [user,         setUser]         = useState(null);
   const [loaded,       setLoaded]       = useState(false);
@@ -146,11 +244,11 @@ export default function Shell({ onPlay }) {
 
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800&display=swap');
-        @keyframes sparkle { 0%,100%{opacity:0;transform:scale(0.5) rotate(0deg)} 50%{opacity:1;transform:scale(1) rotate(180deg)} }
-        @keyframes popIn   { from{opacity:0;transform:scale(0.8) translateY(20px)} to{opacity:1;transform:scale(1) translateY(0)} }
-        @keyframes slideUp { from{opacity:0;transform:translateY(30px)} to{opacity:1;transform:translateY(0)} }
+        @keyframes sparkle    { 0%,100%{opacity:0;transform:scale(0.5) rotate(0deg)} 50%{opacity:1;transform:scale(1) rotate(180deg)} }
+        @keyframes popIn      { from{opacity:0;transform:scale(0.8) translateY(20px)} to{opacity:1;transform:scale(1) translateY(0)} }
+        @keyframes slideUp    { from{opacity:0;transform:translateY(30px)} to{opacity:1;transform:translateY(0)} }
         @keyframes rainbowShift { 0%{background-position:0% 50%} 50%{background-position:100% 50%} 100%{background-position:0% 50%} }
-        @keyframes owlBob  { 0%,100%{transform:translateY(0px)} 50%{transform:translateY(-6px)} }
+        @keyframes owlBob     { 0%,100%{transform:translateY(0px)} 50%{transform:translateY(-6px)} }
       `}</style>
 
       {sparkles.map((s, i) => <Sparkle key={i} {...s} />)}
@@ -158,9 +256,10 @@ export default function Shell({ onPlay }) {
       {/* Star field */}
       <div style={{ position:"absolute", inset:0, pointerEvents:"none" }}>
         {Array.from({ length:40 }).map((_, i) => (
-          <div key={i} style={{ position:"absolute", left:`${(i*37+11)%100}%`, top:`${(i*53+7)%100}%`,
-            width:i%3===0?2:1, height:i%3===0?2:1, borderRadius:"50%", background:"#fff",
-            opacity:0.1+(i%5)*0.04 }}/>
+          <div key={i} style={{ position:"absolute",
+            left:`${(i*37+11)%100}%`, top:`${(i*53+7)%100}%`,
+            width:i%3===0?2:1, height:i%3===0?2:1,
+            borderRadius:"50%", background:"#fff", opacity:0.1+(i%5)*0.04 }}/>
         ))}
       </div>
 
@@ -173,14 +272,15 @@ export default function Shell({ onPlay }) {
           background:`linear-gradient(90deg,${RAINBOW.join(",")})`, backgroundSize:"300% 300%",
           WebkitBackgroundClip:"text", WebkitTextFillColor:"transparent",
           animation:"rainbowShift 6s ease infinite", textTransform:"uppercase" }}>Puzzle Collection</div>
-        <button onClick={() => setShowSettings(true)} style={{ background:"none", border:"1px solid #1a2040",
-          borderRadius:10, padding:"6px 10px", color:"#4a5580", fontSize:16, cursor:"pointer" }}>⚙️</button>
+        <button onClick={() => setShowSettings(true)} style={{ background:"none",
+          border:"1px solid #1a2040", borderRadius:10, padding:"6px 10px",
+          color:"#4a5580", fontSize:16, cursor:"pointer" }}>⚙️</button>
       </div>
 
       {/* Logo */}
       <div style={{ display:"flex", flexDirection:"column", alignItems:"center", padding:"0 20px 4px",
         opacity:loaded?1:0, animation:loaded?"slideUp 0.6s ease 0.1s both":"none" }}>
-        <img src={LOGO} alt="Blu's Clues" style={{ width:260, height:260, objectFit:"contain",
+        <img src={LOGO} alt="Blu's Clues" style={{ width:240, height:240, objectFit:"contain",
           animation:"owlBob 4s ease-in-out infinite", filter:"drop-shadow(0 0 24px #4a9eff33)" }}/>
         <div style={{ height:3, width:120, borderRadius:2, marginTop:4,
           background:`linear-gradient(90deg,${RAINBOW.join(",")})`, backgroundSize:"200% 100%",
@@ -188,34 +288,35 @@ export default function Shell({ onPlay }) {
       </div>
 
       {/* Login */}
-      <div style={{ padding:"12px 20px 4px", opacity:loaded?1:0, animation:loaded?"slideUp 0.6s ease 0.2s both":"none" }}>
+      <div style={{ padding:"12px 20px 4px", opacity:loaded?1:0,
+        animation:loaded?"slideUp 0.6s ease 0.2s both":"none" }}>
         {user ? (
           <div style={{ display:"flex", alignItems:"center", gap:8, background:"#0d1228",
             border:"1px solid #1a2040", borderRadius:20, padding:"6px 14px" }}>
             <div style={{ width:24, height:24, borderRadius:"50%", background:"#4ecdc4",
               display:"flex", alignItems:"center", justifyContent:"center",
               fontSize:12, fontWeight:700, color:"#0d1020" }}>{user.name[0]}</div>
-            <span style={{ color:"#c8cfe0", fontSize:13, fontFamily:"'Nunito',sans-serif" }}>{user.name}</span>
-            <button onClick={() => setUser(null)} style={{ background:"none", border:"none", color:"#2a3060", fontSize:11, cursor:"pointer" }}>Sign out</button>
+            <span style={{ color:"#c8cfe0", fontSize:13 }}>{user.name}</span>
+            <button onClick={() => setUser(null)}
+              style={{ background:"none", border:"none", color:"#2a3060", fontSize:11, cursor:"pointer" }}>
+              Sign out
+            </button>
           </div>
         ) : (
-          <button onClick={() => setUser({ name:"Blu" })} style={{ background:"linear-gradient(135deg,#1a2040,#141828)",
-            border:"1px solid #1e2850", borderRadius:20, padding:"8px 18px",
-            display:"flex", alignItems:"center", gap:8, cursor:"pointer", color:"#c8cfe0",
-            fontFamily:"'Nunito',sans-serif", fontSize:13, fontWeight:600 }}>
+          <button onClick={() => setUser({ name:"Blu" })} style={{
+            background:"linear-gradient(135deg,#1a2040,#141828)", border:"1px solid #1e2850",
+            borderRadius:20, padding:"8px 18px", display:"flex", alignItems:"center", gap:8,
+            cursor:"pointer", color:"#c8cfe0", fontFamily:"'Nunito',sans-serif", fontSize:13, fontWeight:600 }}>
             <span style={{ fontSize:16 }}>🔑</span> Sign in with Google
           </button>
         )}
       </div>
 
-      {/* Game cards */}
-      <div style={{ width:"100%", maxWidth:480, padding:"12px 16px 32px",
-        boxSizing:"border-box", display:"flex", flexDirection:"column", gap:10 }}>
-        {GAMES.map((game, i) => (
-          <div key={game.id} style={{ opacity:loaded?1:0,
-            animation:loaded?`slideUp 0.5s ease ${0.25+i*0.07}s both`:"none" }}>
-            <GameCard game={game} onPlay={onPlay}/>
-          </div>
+      {/* Category cards */}
+      <div style={{ width:"100%", maxWidth:480, padding:"12px 16px 48px",
+        boxSizing:"border-box", display:"flex", flexDirection:"column", gap:12 }}>
+        {CATEGORIES.map((cat, i) => (
+          <CategoryCard key={cat.id} category={cat} onOpen={onOpen} index={i} loaded={loaded} />
         ))}
       </div>
 
