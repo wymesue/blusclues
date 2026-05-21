@@ -13,62 +13,53 @@ export const OWLS = {
 };
 
 // ── CATEGORY REGISTRY ─────────────────────────────────────────────────────────
-// logo: null = placeholder color card. Swap in real logo path when ready.
 const CATEGORIES = [
   {
     id: "action",
     name: "Action",
-    description: "Slide, untangle, and maneuver your way to victory.",
     color: "#7bed9f",
-    glow:  "#7bed9f",
-    logo:  null,
+    logo: "/Action.png",
     games: [
-      { id: "snake-escape", name: "Snake Escape", available: true },
-      { id: "bumper-cars",  name: "Bumper Cars",  available: false },
-      { id: "tangled",      name: "Tangled",       available: false },
+      { id: "snake-escape", name: "Snake Escape", logo: "/SnakeEscape.png", available: true  },
+      { id: "bumper-cars",  name: "Bumper Cars",  logo: "/BumperCars.png",  available: false },
+      { id: "tangled",      name: "Tangled",      logo: "/Tangled.png",     available: false },
     ],
   },
   {
     id: "word",
     name: "Word",
-    description: "Letters, clues, and the perfect word.",
     color: "#ffd93d",
-    glow:  "#ffd93d",
-    logo:  null,
+    logo: null,
     games: [
-      { id: "hoot-and-holler", name: "Hoot & Holler", available: false },
-      { id: "anagrams",        name: "Anagrams",       available: false },
-      { id: "word-search",     name: "Word Search",    available: false },
-      { id: "crossword",       name: "Crossword",      available: false },
-      { id: "crack-the-case",  name: "Crack the Case", available: false },
+      { id: "hoot-and-holler", name: "Hoot & Holler", logo: null, available: false },
+      { id: "anagrams",        name: "Anagrams",       logo: null, available: false },
+      { id: "word-search",     name: "Word Search",    logo: null, available: false },
+      { id: "crossword",       name: "Crossword",      logo: null, available: false },
+      { id: "crack-the-case",  name: "Crack the Case", logo: null, available: false },
     ],
   },
   {
     id: "number",
     name: "Number",
-    description: "Grids, logic, and satisfying precision.",
     color: "#4ecdc4",
-    glow:  "#4ecdc4",
-    logo:  null,
+    logo: null,
     games: [
-      { id: "sudoku",  name: "Sudoku",  available: false },
-      { id: "picross", name: "Picross", available: false },
+      { id: "sudoku",  name: "Sudoku",  logo: null, available: false },
+      { id: "picross", name: "Picross", logo: null, available: false },
     ],
   },
   {
     id: "trivia",
     name: "Trivia",
-    description: "How much do you actually know?",
     color: "#a29bfe",
-    glow:  "#a29bfe",
-    logo:  null,
+    logo: null,
     games: [
-      { id: "trivia-science",    name: "Science",    available: false },
-      { id: "trivia-history",    name: "History",    available: false },
-      { id: "trivia-pop",        name: "Pop Culture", available: false },
-      { id: "trivia-geography",  name: "Geography",  available: false },
-      { id: "trivia-sports",     name: "Sports",     available: false },
-      { id: "trivia-gaming",     name: "Gaming",     available: false },
+      { id: "trivia-science",   name: "Science",     logo: null, available: false },
+      { id: "trivia-history",   name: "History",     logo: null, available: false },
+      { id: "trivia-pop",       name: "Pop Culture", logo: null, available: false },
+      { id: "trivia-geography", name: "Geography",   logo: null, available: false },
+      { id: "trivia-sports",    name: "Sports",      logo: null, available: false },
+      { id: "trivia-gaming",    name: "Gaming",      logo: null, available: false },
     ],
   },
 ];
@@ -87,29 +78,61 @@ function Sparkle({ x, y, color, size, delay }) {
   );
 }
 
-// ── CATEGORY CARD ─────────────────────────────────────────────────────────────
-function CategoryCard({ category, onOpen, index, loaded }) {
+// ── GAME PILL ─────────────────────────────────────────────────────────────────
+function GamePill({ game, color, onPlay }) {
   const [hovered, setHovered] = useState(false);
-  const hasAvailable = category.games.some(g => g.available);
 
   return (
     <div
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
-      onClick={() => onOpen(category.id)}
+      onClick={() => game.available && onPlay(game.id)}
+      style={{
+        cursor: game.available ? "pointer" : "default",
+        opacity: game.available ? 1 : 0.35,
+        transition: "all 0.2s ease",
+        transform: hovered && game.available ? "scale(1.05)" : "scale(1)",
+        filter: hovered && game.available ? `drop-shadow(0 0 8px ${color}88)` : "none",
+      }}
+    >
+      {game.logo ? (
+        <img src={game.logo} alt={game.name}
+          style={{ height:36, width:"auto", objectFit:"contain", display:"block" }}/>
+      ) : (
+        <div style={{
+          background: game.available ? `${color}22` : "#0a0d1a",
+          border: `1px solid ${game.available ? color+"44" : "#1a2040"}`,
+          borderRadius: 8, padding: "6px 12px",
+          fontSize: 12, fontWeight: 700,
+          color: game.available ? color : "#2a3060",
+          fontFamily: "'Fredoka One', cursive",
+          whiteSpace: "nowrap",
+        }}>{game.name}</div>
+      )}
+    </div>
+  );
+}
+
+// ── CATEGORY CARD ─────────────────────────────────────────────────────────────
+function CategoryCard({ category, onPlay, index, loaded }) {
+  const [hovered, setHovered] = useState(false);
+
+  return (
+    <div
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
       style={{
         position: "relative",
         background: hovered
-          ? `linear-gradient(135deg, #0d1535 0%, #111830 100%)`
-          : `linear-gradient(135deg, #090d1f 0%, #0d1228 100%)`,
+          ? "linear-gradient(135deg,#0d1535,#111830)"
+          : "linear-gradient(135deg,#090d1f,#0d1228)",
         border: `1.5px solid ${hovered ? category.color : "#1a2040"}`,
         borderRadius: 20,
-        padding: "20px",
-        cursor: "pointer",
+        padding: "16px",
         transition: "all 0.3s cubic-bezier(0.34,1.56,0.64,1)",
-        transform: hovered ? "translateY(-4px) scale(1.02)" : "translateY(0) scale(1)",
+        transform: hovered ? "translateY(-3px)" : "translateY(0)",
         boxShadow: hovered
-          ? `0 12px 40px ${category.glow}33, 0 0 0 1px ${category.color}22`
+          ? `0 12px 40px ${category.color}22`
           : "0 2px 12px rgba(0,0,0,0.4)",
         overflow: "hidden",
         opacity: loaded ? 1 : 0,
@@ -119,63 +142,37 @@ function CategoryCard({ category, onOpen, index, loaded }) {
       {/* Glow blob */}
       <div style={{ position:"absolute", top:-20, right:-20, width:100, height:100,
         borderRadius:"50%", background:category.color,
-        opacity:hovered?0.15:0.05, filter:"blur(24px)",
-        transition:"opacity 0.3s", pointerEvents:"none" }}/>
+        opacity:hovered?0.12:0.04, filter:"blur(24px)", pointerEvents:"none" }}/>
 
-      <div style={{ display:"flex", alignItems:"center", gap:16 }}>
-
-        {/* Color badge / future logo */}
-        <div style={{
-          width: 60, height: 60, borderRadius: 16, flexShrink: 0,
-          background: `linear-gradient(135deg, ${category.color}33, ${category.color}11)`,
-          border: `2px solid ${category.color}44`,
-          display: "flex", alignItems: "center", justifyContent: "center",
-        }}>
+      <div style={{ display:"flex", alignItems:"center", gap:14, marginBottom:12 }}>
+        {/* Category logo or color badge */}
+        <div style={{ width:56, height:56, borderRadius:14, flexShrink:0,
+          background:`linear-gradient(135deg,${category.color}22,${category.color}08)`,
+          border:`1.5px solid ${category.color}33`,
+          display:"flex", alignItems:"center", justifyContent:"center", overflow:"hidden" }}>
           {category.logo
             ? <img src={category.logo} alt={category.name}
-                style={{ width:52, height:52, objectFit:"contain" }}/>
-            : <div style={{ fontFamily:"'Fredoka One',cursive", fontSize:13,
-                color:category.color, textAlign:"center", lineHeight:1.2, padding:4 }}>
+                style={{ width:50, height:50, objectFit:"contain" }}/>
+            : <div style={{ fontFamily:"'Fredoka One',cursive", fontSize:11,
+                color:category.color, textAlign:"center", padding:4, lineHeight:1.2 }}>
                 {category.name}
               </div>
           }
         </div>
 
-        <div style={{ flex:1, minWidth:0 }}>
-          <div style={{ fontSize:18, fontWeight:700, color:"#e8eaf6",
-            fontFamily:"'Fredoka One',cursive", letterSpacing:0.3, marginBottom:4 }}>
-            {category.name}
-          </div>
-          <div style={{ fontSize:12, color:"#4a5580", fontFamily:"'Nunito',sans-serif",
-            lineHeight:1.4, marginBottom:8 }}>
-            {category.description}
-          </div>
-          {/* Game pills */}
-          <div style={{ display:"flex", flexWrap:"wrap", gap:4 }}>
-            {category.games.map(g => (
-              <div key={g.id} style={{
-                fontSize:10, padding:"2px 8px", borderRadius:8, fontFamily:"'Nunito',sans-serif",
-                background: g.available ? `${category.color}22` : "#0a0d1a",
-                color: g.available ? category.color : "#2a3060",
-                border: `1px solid ${g.available ? category.color+"44" : "#1a2040"}`,
-              }}>{g.name}</div>
-            ))}
-          </div>
+        {/* Category name */}
+        <div style={{ fontFamily:"'Fredoka One',cursive", fontSize:22,
+          color:"#e8eaf6", letterSpacing:0.5,
+          textShadow:`0 0 20px ${category.color}44` }}>
+          {category.name}
         </div>
+      </div>
 
-        <div style={{ flexShrink:0 }}>
-          <div style={{
-            background: hasAvailable
-              ? `linear-gradient(135deg, ${category.color}, ${category.color}bb)`
-              : "#1a2040",
-            borderRadius: 10, padding: "8px 14px",
-            fontSize: 12, fontWeight: 700,
-            color: hasAvailable ? "#0d1020" : "#2a3060",
-            fontFamily: "'Nunito',sans-serif",
-            opacity: hovered ? 1 : 0.85,
-            transition: "opacity 0.2s",
-          }}>{hasAvailable ? "Play" : "Soon"}</div>
-        </div>
+      {/* Game pills */}
+      <div style={{ display:"flex", flexWrap:"wrap", gap:8, paddingLeft:4 }}>
+        {category.games.map(game => (
+          <GamePill key={game.id} game={game} color={category.color} onPlay={onPlay} />
+        ))}
       </div>
     </div>
   );
@@ -218,7 +215,7 @@ function SettingsModal({ onClose }) {
 }
 
 // ── SHELL ─────────────────────────────────────────────────────────────────────
-export default function Shell({ onOpen }) {
+export default function Shell({ onPlay }) {
   const [showSettings, setShowSettings] = useState(false);
   const [user,         setUser]         = useState(null);
   const [loaded,       setLoaded]       = useState(false);
@@ -244,11 +241,11 @@ export default function Shell({ onOpen }) {
 
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800&display=swap');
-        @keyframes sparkle    { 0%,100%{opacity:0;transform:scale(0.5) rotate(0deg)} 50%{opacity:1;transform:scale(1) rotate(180deg)} }
-        @keyframes popIn      { from{opacity:0;transform:scale(0.8) translateY(20px)} to{opacity:1;transform:scale(1) translateY(0)} }
-        @keyframes slideUp    { from{opacity:0;transform:translateY(30px)} to{opacity:1;transform:translateY(0)} }
+        @keyframes sparkle      { 0%,100%{opacity:0;transform:scale(0.5) rotate(0deg)} 50%{opacity:1;transform:scale(1) rotate(180deg)} }
+        @keyframes popIn        { from{opacity:0;transform:scale(0.8) translateY(20px)} to{opacity:1;transform:scale(1) translateY(0)} }
+        @keyframes slideUp      { from{opacity:0;transform:translateY(30px)} to{opacity:1;transform:translateY(0)} }
         @keyframes rainbowShift { 0%{background-position:0% 50%} 50%{background-position:100% 50%} 100%{background-position:0% 50%} }
-        @keyframes owlBob     { 0%,100%{transform:translateY(0px)} 50%{transform:translateY(-6px)} }
+        @keyframes owlBob       { 0%,100%{transform:translateY(0px)} 50%{transform:translateY(-6px)} }
       `}</style>
 
       {sparkles.map((s, i) => <Sparkle key={i} {...s} />)}
@@ -280,7 +277,7 @@ export default function Shell({ onOpen }) {
       {/* Logo */}
       <div style={{ display:"flex", flexDirection:"column", alignItems:"center", padding:"0 20px 4px",
         opacity:loaded?1:0, animation:loaded?"slideUp 0.6s ease 0.1s both":"none" }}>
-        <img src={LOGO} alt="Blu's Clues" style={{ width:240, height:240, objectFit:"contain",
+        <img src={LOGO} alt="Blu's Clues" style={{ width:220, height:220, objectFit:"contain",
           animation:"owlBob 4s ease-in-out infinite", filter:"drop-shadow(0 0 24px #4a9eff33)" }}/>
         <div style={{ height:3, width:120, borderRadius:2, marginTop:4,
           background:`linear-gradient(90deg,${RAINBOW.join(",")})`, backgroundSize:"200% 100%",
@@ -316,7 +313,7 @@ export default function Shell({ onOpen }) {
       <div style={{ width:"100%", maxWidth:480, padding:"12px 16px 48px",
         boxSizing:"border-box", display:"flex", flexDirection:"column", gap:12 }}>
         {CATEGORIES.map((cat, i) => (
-          <CategoryCard key={cat.id} category={cat} onOpen={onOpen} index={i} loaded={loaded} />
+          <CategoryCard key={cat.id} category={cat} onPlay={onPlay} index={i} loaded={loaded}/>
         ))}
       </div>
 
