@@ -4,7 +4,7 @@ import Shell from "./Shell.jsx";
 
 // ── LAZY TOOL IMPORTS ─────────────────────────────────────────────────────────
 // Tools are only loaded when the URL matches — players never download this code
-const SnakeGenerator = lazy(() => import("../games/arrow/generator/index.jsx"));
+const SnakeGenerator = lazy(() => import("./games/arrow/generator/index.jsx"));
 
 // ── TOOLS ROUTES ──────────────────────────────────────────────────────────────
 // Hidden routes only you know about. Add new tools here as games are built:
